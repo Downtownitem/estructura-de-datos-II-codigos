@@ -1,0 +1,17 @@
+FROM docker:dind
+
+# Instala Git
+RUN apk add --no-cache git
+
+# Clona el repositorio de GitHub dentro del contenedor
+WORKDIR /app
+RUN git clone https://github.com/Downtownitem/estructura-de-datos-II-codigos.git
+
+# Mueve el contexto de trabajo al repositorio clonado
+WORKDIR /app/estructura-de-datos-II-codigos
+
+# Construye la imagen dentro del contenedor
+RUN docker build -t imagen-interna .
+
+# Ejecuta el contenedor basado en la imagen recién construida
+CMD ["docker", "run", "imagen-interna"]
