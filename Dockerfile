@@ -28,12 +28,17 @@ WORKDIR /app
 COPY rust/main.rs .
 RUN rustc main.rs -o main && ./main
 
-FROM alpine:latest AS final_stage
+FROM python:3.12.8 AS final_stage
+RUN mkdir /app
 WORKDIR /app
-COPY --from=python_stage /app/execution_time.txt python_execution_time.txt
-COPY --from=javascript_stage /app/execution_time.txt javascript_execution_time.txt
-COPY --from=java_stage /app/execution_time.txt java_execution_time.txt
-COPY --from=cpp_stage /app/execution_time.txt cpp_execution_time.txt
-COPY --from=rust_stage /app/execution_time.txt rust_execution_time.txt
 
-CMD cat python_execution_time.txt javascript_execution_time.txt java_execution_time.txt cpp_execution_time.txt rust_execution_time.txt
+COPY --from=python_stage /app/execution_time.txt /app/python_execution_time.txt
+COPY --from=javascript_stage /app/execution_time.txt /app/javascript_execution_time.txt
+COPY --from=java_stage /app/execution_time.txt /app/java_execution_time.txt
+COPY --from=cpp_stage /app/execution_time.txt /app/cpp_execution_time.txt
+COPY --from=rust_stage /app/execution_time.txt /app/rust_execution_time.txt
+
+COPY write_table.py /app
+RUN pip install --no-cache-dir tabulate
+
+CMD ["python", "write_table.py"]
